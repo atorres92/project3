@@ -35,10 +35,12 @@ public class MainActivity extends Activity {
 	}
 
 	public void onStartButton (View view){
+		startService(new Intent(this, LocationService.class));
 		//Log.i("start","start");
 	}
 
 	public void onStopButton (View view){
+		stopService(new Intent(this, LocationService.class));
 		//Log.i("stop","stop");
 	}
 
