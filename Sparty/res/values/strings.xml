@@ -8,5 +8,7 @@
     <string name="sparty">Sparty</string>
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>
+    <string name="title_activity_sparty_statue">SpartyStatue</string>
+
 
 </resources>
