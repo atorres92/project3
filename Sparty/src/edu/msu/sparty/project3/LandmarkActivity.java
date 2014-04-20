@@ -2,7 +2,6 @@ package edu.msu.sparty.project3;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.view.Menu;
 
 public class LandmarkActivity extends Activity {
 
@@ -17,7 +16,7 @@ public class LandmarkActivity extends Activity {
 		} else if (landmarkRes.equalsIgnoreCase("sparty")) {
 			setContentView(R.layout.activity_landmark_statue);
 		} else if (landmarkRes.equalsIgnoreCase("beaumont")) {
-			setContentView(R.layout.activity_landmark_breslin);
+			setContentView(R.layout.activity_landmark_beaumont);
 		}
 	}
 
