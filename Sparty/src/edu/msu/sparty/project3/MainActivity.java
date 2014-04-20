@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
+	public static String LANDMARK = "landmark";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
