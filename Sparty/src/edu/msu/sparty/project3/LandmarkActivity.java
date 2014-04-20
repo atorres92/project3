@@ -9,7 +9,16 @@ public class LandmarkActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_landmark_breslin);
+		
+		String landmarkRes = getIntent().getStringExtra(MainActivity.LANDMARK);
+		
+		if(landmarkRes.equalsIgnoreCase("breslin")) {
+			setContentView(R.layout.activity_landmark_breslin);
+		} else if (landmarkRes.equalsIgnoreCase("sparty")) {
+			setContentView(R.layout.activity_landmark_breslin);
+		} else if (landmarkRes.equalsIgnoreCase("beaumont")) {
+			setContentView(R.layout.activity_landmark_breslin);
+		}
 	}
 
 }
