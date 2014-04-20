@@ -2,7 +2,9 @@ package edu.msu.sparty.project3;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 
 public class MainActivity extends Activity {
 
@@ -18,5 +20,12 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	public void onStartButton (View view){
+		//Log.i("start","start");
+	}
 
+	public void onStopButton (View view){
+		//Log.i("stop","stop");
+	}
 }
