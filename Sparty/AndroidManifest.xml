@@ -23,8 +23,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.msu.sparty.project3.SpartyStatue"
-            android:label="@string/title_activity_sparty_statue" >
+            android:name="edu.msu.sparty.project3.LandmarkActivity"
+            android:label="@string/title_activity_landmark" >
         </activity>
     </application>
 
