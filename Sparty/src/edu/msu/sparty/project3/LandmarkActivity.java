@@ -15,7 +15,7 @@ public class LandmarkActivity extends Activity {
 		if(landmarkRes.equalsIgnoreCase("breslin")) {
 			setContentView(R.layout.activity_landmark_breslin);
 		} else if (landmarkRes.equalsIgnoreCase("sparty")) {
-			setContentView(R.layout.activity_landmark_breslin);
+			setContentView(R.layout.activity_landmark_statue);
 		} else if (landmarkRes.equalsIgnoreCase("beaumont")) {
 			setContentView(R.layout.activity_landmark_breslin);
 		}
