@@ -4,6 +4,9 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
@@ -26,6 +29,11 @@
             android:name="edu.msu.sparty.project3.SpartyStatue"
             android:label="@string/title_activity_sparty_statue" >
         </activity>
+        
+        <service
+ 		 android:name="LocationService"
+  			android:label="@string/service_name" >
+		</service> 
     </application>
 
 </manifest>
