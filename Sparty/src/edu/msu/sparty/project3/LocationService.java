@@ -132,17 +132,17 @@ public class LocationService extends Service {
         if (chosenDistance < 100 ) {
         	unregisterListeners();
         	Log.i("LocationService.java: ", "Near landmark");
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, LandmarkActivity.class);
+            intent.putExtra(MainActivity.LANDMARK, dest);
             PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
             Notification notification = new Notification.Builder(this)
 	            .setContentTitle("Arrived at " + dest)
 	            .setContentText(dest).setSmallIcon(R.drawable.ic_launcher)
-	            .setContentIntent(pIntent).build();
+	            .setContentIntent(pIntent)
+	            .setAutoCancel(true)
+	            .build();
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            // hide the notification after its selected
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
             notificationManager.notify(0, notification);
 
         } else if (chosenDistance < 500) {
