@@ -4,19 +4,33 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class LocationService extends Service {
 
-    private NotificationManager mNM;
-
-    // Unique Identification Number for the Notification.
-    // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = R.string.start_service_started;
+    private LocationManager locationManager = null;
+    private ActiveListener activeListener = new ActiveListener();
+    
+    private Location breslinLocation;
+    private Location spartyLocation;
+    private Location beaumontLocation;
+    
+    private double latitude = 0;
+    private double longitude = 0;
+        
+    private boolean firstRun;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -30,62 +44,146 @@ public class LocationService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+    public void onCreate() {        
+    	firstRun = false;
+    	
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+    	breslinLocation = new Location(LocationManager.GPS_PROVIDER);
+    	breslinLocation.setLatitude(42.728173);
+    	breslinLocation.setLongitude(-84.492248);
+    	spartyLocation = new Location(LocationManager.GPS_PROVIDER);
+    	spartyLocation.setLatitude(42.731138);
+    	spartyLocation.setLongitude(-84.487508);
+    	beaumontLocation = new Location(LocationManager.GPS_PROVIDER);
+    	beaumontLocation.setLatitude(42.731951);
+    	beaumontLocation.setLongitude(-84.482165);
 
-        // Display a notification about us starting.  We put an icon in the status bar.
-        showNotification();
-    }
+    	Log.i("onCreate","onCreate");
+        registerListeners(500);
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LocalService", "Received start id " + startId + ": " + intent);
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        // Cancel the persistent notification.
-        mNM.cancel(NOTIFICATION);
-
-        // Tell the user we stopped.
-        Toast.makeText(this, R.string.stop_service, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    // This is the object that receives interactions from clients.  See
-    // RemoteService for a more complete example.
-    private final IBinder mBinder = new LocalBinder();
-
-    /**
-     * Show a notification while this service is running.
-     */
-    private void showNotification() {
-        // In this sample, we'll use the same text for the ticker and the expanded notification
-        CharSequence text = getText(R.string.dummy);
-
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(R.drawable.ic_launcher, text,
-                System.currentTimeMillis());
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        Intent intent = new Intent(this,LandmarkActivity.class);
+        unregisterListeners();
+    }   
+    
+    private void registerListeners(int interval) {
+    	
+        unregisterListeners();
+        // Create a Criteria object
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        criteria.setAltitudeRequired(true);
+        criteria.setBearingRequired(false);
+        criteria.setSpeedRequired(false);
+        criteria.setCostAllowed(false);
         
-        intent.putExtra(MainActivity.LANDMARK, "breslin");
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                intent, 0);
-
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, getText(R.string.dummy),
-                       text, contentIntent);
-
-        // Send the notification.
-        mNM.notify(NOTIFICATION, notification);
+        String bestAvailable = locationManager.getBestProvider(criteria, true);
+        
+        if(bestAvailable != null) {
+            locationManager.requestLocationUpdates(bestAvailable, interval, 1, activeListener);
+            if( !firstRun ) {
+                firstRun = true;
+                try {
+                    Location location = locationManager.getLastKnownLocation(bestAvailable);
+                    onLocation(location);
+                } catch (SecurityException se) {
+                	se.printStackTrace();
+                } catch (IllegalArgumentException ie) {
+                	ie.printStackTrace();
+                }
+            }
+        }
     }
+    
+    private void unregisterListeners() {
+        locationManager.removeUpdates(activeListener);
+    }
+    
+    private void onLocation(Location location) {
+        if(location == null) {
+            return;
+        }
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        Log.i("LocationService.java: ", "current latitude: " + String.valueOf(latitude));
+        Log.i("LocationService.java: ", "current longitude: " + String.valueOf(longitude));
+
+        
+        float [] breslinDistance = new float[1];
+        float [] spartyDistance = new float[1];
+        float [] beaumontDistance = new float[1];
+        
+        Location.distanceBetween(latitude, longitude, breslinLocation.getLatitude(), breslinLocation.getLongitude(), breslinDistance);
+        Location.distanceBetween(latitude, longitude, spartyLocation.getLatitude(), spartyLocation.getLongitude(), spartyDistance);
+        Location.distanceBetween(latitude, longitude, beaumontLocation.getLatitude(), beaumontLocation.getLongitude(), beaumontDistance);
+
+        float chosenDistance = Math.min(breslinDistance[0], Math.min(spartyDistance[0], beaumontDistance[0]));
+        String dest = "";
+        if ( chosenDistance == breslinDistance[0] ) {
+        	dest = "breslin";
+        } else if (chosenDistance == spartyDistance[0]) {
+        	dest = "sparty";
+        } else if (chosenDistance == beaumontDistance[0]) {
+        	dest = "beaumont";
+        }
+        if (chosenDistance < 100 ) {
+        	unregisterListeners();
+        	Log.i("LocationService.java: ", "Near landmark");
+            Intent intent = new Intent(this, MainActivity.class);
+            PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            Notification notification = new Notification.Builder(this)
+	            .setContentTitle("Arrived at " + dest)
+	            .setContentText(dest).setSmallIcon(R.drawable.ic_launcher)
+	            .setContentIntent(pIntent).build();
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            // hide the notification after its selected
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+            notificationManager.notify(0, notification);
+
+        } else if (chosenDistance < 500) {
+        	Log.i("LocationService.java: ", "Within 500 meters of landmark");
+        	registerListeners(10000);
+        } else if (chosenDistance < 1000) {
+        	Log.i("LocationService.java: ", "Within 1000 meters of landmark");
+        	registerListeners(30000);
+        } else {
+        	Log.i("LocationSErvice.java: ", "Far away");
+        	registerListeners(60000);
+        }
+    }
+    
+    private class ActiveListener implements LocationListener {
+    	
+    	private Location lastLoc;
+    	
+		@Override
+		public void onLocationChanged(Location loc) {
+			onLocation(loc);
+		}
+
+		@Override
+		public void onProviderDisabled(String arg0) {
+            registerListeners(500);
+		}
+
+		@Override
+		public void onProviderEnabled(String provider) {
+		}
+
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+		}
+
+        
+    }
+
+	@Override
+	public IBinder onBind(Intent arg0) {
+		return null;
+	}; 
 }
