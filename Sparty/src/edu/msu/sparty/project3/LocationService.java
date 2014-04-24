@@ -84,17 +84,13 @@ public class LocationService extends Service {
         
         if(bestAvailable != null) {
             locationManager.requestLocationUpdates(bestAvailable, interval, 1, activeListener);
+            /*
+            Location location = locationManager.getLastKnownLocation(bestAvailable);
             if( !firstRun ) {
                 firstRun = true;
-                try {
-                    Location location = locationManager.getLastKnownLocation(bestAvailable);
-                    onLocation(location);
-                } catch (SecurityException se) {
-                	se.printStackTrace();
-                } catch (IllegalArgumentException ie) {
-                	ie.printStackTrace();
-                }
+                onLocation(location);
             }
+            */
         }
     }
     
@@ -120,19 +116,28 @@ public class LocationService extends Service {
         Location.distanceBetween(latitude, longitude, spartyLocation.getLatitude(), spartyLocation.getLongitude(), spartyDistance);
         Location.distanceBetween(latitude, longitude, beaumontLocation.getLatitude(), beaumontLocation.getLongitude(), beaumontDistance);
 
+        Log.i("Sparty: ", String.valueOf(spartyDistance[0]));
+        Log.i("Breslin: ", String.valueOf(breslinDistance[0]));
+        Log.i("Beaumont: ", String.valueOf(beaumontDistance[0]));
+        
         float chosenDistance = Math.min(breslinDistance[0], Math.min(spartyDistance[0], beaumontDistance[0]));
         String dest = "";
-        if ( chosenDistance == breslinDistance[0] ) {
-        	dest = "breslin";
-        } else if (chosenDistance == spartyDistance[0]) {
-        	dest = "sparty";
-        } else if (chosenDistance == beaumontDistance[0]) {
-        	dest = "beaumont";
-        }
+
+        
+        Log.i("dest; ", dest);
+        
+        Log.i("Logger:", "Chosen distance: " + String.valueOf(chosenDistance));
         if (chosenDistance < 100 ) {
         	unregisterListeners();
         	Log.i("LocationService.java: ", "Near landmark");
-            Intent intent = new Intent(this, LandmarkActivity.class);
+        	Intent intent = null;
+            if ( chosenDistance == breslinDistance[0] ) {
+                intent = new Intent(this, BreslinActivity.class);
+            } else if (chosenDistance == spartyDistance[0]) {
+                intent = new Intent(this, SpartyActivity.class);
+            } else if (chosenDistance == beaumontDistance[0]) {
+                intent = new Intent(this, BeaumontActivity.class);
+            }
             intent.putExtra(MainActivity.LANDMARK, dest);
             PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
@@ -158,9 +163,7 @@ public class LocationService extends Service {
     }
     
     private class ActiveListener implements LocationListener {
-    	
-    	private Location lastLoc;
-    	
+    	    	
 		@Override
 		public void onLocationChanged(Location loc) {
 			onLocation(loc);

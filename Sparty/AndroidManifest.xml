@@ -6,7 +6,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
@@ -29,11 +29,24 @@
             android:name="edu.msu.sparty.project3.LandmarkActivity"
             android:label="@string/title_activity_landmark" >
         </activity>
-        
+
         <service
- 		 android:name="LocationService"
-  			android:label="@string/service_name" >
-		</service> 
+            android:name="edu.msu.sparty.project3.LocationService"
+            android:label="@string/service_name" >
+        </service>
+
+        <activity
+            android:name="edu.msu.sparty.project3.BreslinActivity"
+            android:label="@string/title_activity_breslin" >
+        </activity>
+        <activity
+            android:name="edu.msu.sparty.project3.SpartyActivity"
+            android:label="@string/title_activity_sparty" >
+        </activity>
+        <activity
+            android:name="edu.msu.sparty.project3.BeaumontActivity"
+            android:label="@string/title_activity_beaumont" >
+        </activity>
     </application>
 
 </manifest>
